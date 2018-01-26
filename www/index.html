@@ -89,29 +89,7 @@ var $id = function(id) {
 };
 
 var local_ip = '192.168.178.122';
-
-function start_websocket() {
-    // use local_ip when index.html is loaded as file
-    var url = `ws://${location.host ? location.host : local_ip}`;
-
-    window.pixelsock = new WebSocket(url);
-    window.pixelsock.addEventListener('open', (event)=>{
-        activate_input();
-    });
-    window.pixelsock.addEventListener('message', (event)=>{
-        // websocket returns the current hue on connect
-        $id('hue').value = event.data;
-    });
-    window.pixelsock.addEventListener('close', (event)=>{
-        disable_input();
-        window.setTimeout(start_websocket);
-    });
-}
-
-
-window.addEventListener('load', ()=>{
-    start_websocket();
-});
+var debounce_time = 20; // limit the amount of events that get sent to the controller
 
 function activate_input() {
     $id('hue').disabled = false;
@@ -124,6 +102,31 @@ function disable_input() {
     $id('hue_container').style.filter = 'grayscale(90%)';
     $id('loading').style.display  = '';
 }
+
+function start_websocket() {
+    // use local_ip when index.html is loaded as file
+    var url = `ws://${location.host ? location.host : local_ip}`;
+
+    window.pixelsock = new WebSocket(url);
+
+    window.pixelsock.addEventListener('open', (event)=>{
+        activate_input();
+    });
+
+    window.pixelsock.addEventListener('message', (event)=>{
+        // websocket returns the current hue on connect
+        $id('hue').value = event.data;
+    });
+
+    window.pixelsock.addEventListener('close', (event)=>{
+        disable_input();
+        window.setTimeout(start_websocket); // restart the websocket
+    });
+}
+
+window.addEventListener('load', ()=>{
+    start_websocket();
+});
 
 // https://remysharp.com/2010/07/21/throttling-function-calls
 function debounce(fn, delay) {
@@ -140,7 +143,7 @@ function debounce(fn, delay) {
 $id('hue').addEventListener('input', debounce((event)=> {
     var hue = event.target.value;
     pixelsock.send(hue);
-}, 20));
+}, debounce_time));
 
 </script>
 
