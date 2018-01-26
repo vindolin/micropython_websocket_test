@@ -6,7 +6,7 @@ Control the color of a rotating gradient NeoPixel ring from a webpage using webs
 
 Multiple windows to the same module can be open and the widgets are synchronized through the websockets.
 
-The client websocket reconnects after connection loss.
+The client websocket automatically reconnects after connection loss.
 
 Copy networks.py, wifi.py, color.py and main.py and the subfolder www to your flash filesystem.
 
