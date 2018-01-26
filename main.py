@@ -65,13 +65,6 @@ def ping():
         sleep(2)
 
 
-def _acceptWebSocketCallback(webSocket, httpClient):
-    print('WS ACCEPT')
-    webSocket.RecvTextCallback = _recvTextCallback
-    webSocket.ClosedCallback = _closedCallback
-    webSocket.SendText(str(hue))
-
-
 def _recvTextCallback(webSocket, msg):
     global hue
     hue = int(msg)
@@ -79,6 +72,13 @@ def _recvTextCallback(webSocket, msg):
 
 def _closedCallback(webSocket):
     print('WS CLOSED')
+
+
+def _acceptWebSocketCallback(webSocket, httpClient):
+    print('WS ACCEPT')
+    webSocket.RecvTextCallback = _recvTextCallback
+    webSocket.ClosedCallback = _closedCallback
+    webSocket.SendText(str(hue))
 
 
 mws = MicroWebSrv(webPath='/www')
