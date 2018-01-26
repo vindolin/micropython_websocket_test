@@ -1,0 +1,3 @@
+[submodule "MicroWebSrv"]
+	path = MicroWebSrv
+	url = git@github.com:jczic/MicroWebSrv.git
