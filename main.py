@@ -66,7 +66,8 @@ def _recvTextCallback(webSocket, msg):
     globals()['hue'] = int(msg)
     # synchronize the other clients
     for ws in websockets:
-        ws.SendText(msg)
+        if ws != webSocket:
+            ws.SendText(msg)
 
 
 def _closedCallback(webSocket):
