@@ -32,10 +32,10 @@ clear()
 
 
 def set_luminosity(luminosity):
-    global lramp, max_lum
+    global lum_gradient, max_lum
     max_lum = luminosity
     step = max_lum / PIXELCOUNT
-    lramp = [int(step * i) for i in range(PIXELCOUNT + 1)]
+    lum_gradient = [int(step * i) for i in range(PIXELCOUNT + 1)]
 
 
 set_luminosity(max_lum)
@@ -49,7 +49,7 @@ def go():
             rgb = hsl2rgb((
                 hue,
                 255,
-                lramp[pixi]
+                lum_gradient[pixi]
             ))
             np[(i + pixi) % PIXELCOUNT] = [int(c) for c in rgb]
         np.write()
@@ -59,23 +59,24 @@ def go():
         i += 1
 
 
-def ping():
-    while True:
-        print(lramp)
-        sleep(2)
+websockets = []
 
 
 def _recvTextCallback(webSocket, msg):
-    global hue
-    hue = int(msg)
+    globals()['hue'] = int(msg)
+    # synchronize the other clients
+    for ws in websockets:
+        ws.SendText(msg)
 
 
 def _closedCallback(webSocket):
-    print('WS CLOSED')
+    websockets.remove(webSocket)
 
 
 def _acceptWebSocketCallback(webSocket, httpClient):
-    print('WS ACCEPT')
+    websockets.append(webSocket)
+
+    print('new connection from ' + httpClient.GetIPAddr())
     webSocket.RecvTextCallback = _recvTextCallback
     webSocket.ClosedCallback = _closedCallback
     webSocket.SendText(str(hue))
