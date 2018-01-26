@@ -90,22 +90,41 @@ var $id = function(id) {
 
 var local_ip = '192.168.178.122';
 
-window.addEventListener('load', ()=>{
+function start_websocket() {
     // use local_ip when index.html is loaded as file
     var url = `ws://${location.host ? location.host : local_ip}`;
 
     window.pixelsock = new WebSocket(url);
     window.pixelsock.addEventListener('open', (event)=>{
-        // activate the form elements
-        $id('hue').disabled = false;
-        $id('hue_container').style.filter = 'grayscale(0%)';
-        $id('loading').style.display  = 'none';
+        activate_input();
     });
     window.pixelsock.addEventListener('message', (event)=>{
         // websocket returns the current hue on connect
         $id('hue').value = event.data;
     });
+    window.pixelsock.addEventListener('close', (event)=>{
+        disable_input();
+        window.setTimeout(start_websocket);
+    });
+}
+
+
+window.addEventListener('load', ()=>{
+    start_websocket();
 });
+
+function activate_input() {
+    $id('hue').disabled = false;
+    $id('hue_container').style.filter = 'grayscale(0%)';
+    $id('loading').style.display  = 'none';
+}
+
+function disable_input() {
+    $id('hue').disabled = true;
+    $id('hue_container').style.filter = 'grayscale(90%)';
+    $id('loading').style.display  = '';
+}
+
 
 $id('hue').addEventListener('input', (event)=> {
     var hue = event.target.value;
