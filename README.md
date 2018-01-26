@@ -1,6 +1,6 @@
 # micropython_websocket_test
 
-## Just a little experiment with MicroPython and websockets.
+## Just a little experiment with MicroPython and websockets on an ESP32.
 
 Control the color of a rotating gradient NeoPixel ring from a webpage using websockets.
 
