@@ -1,7 +1,7 @@
 # micropython_websocket_test
 Control the color of a rotating gradient NeoPixel ring from a webpage using websockets.
 
-Multiple windows to the same module can be open and the widgets are synchronized through the websocket.
+Multiple windows to the same module can be open and the widgets are synchronized through the websockets.
 
 The client websocket reconnects after connection loss.
 
