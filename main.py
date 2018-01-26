@@ -5,7 +5,7 @@ import math
 from color import hsl2rgb
 from microWebSrv import MicroWebSrv  # download at https://github.com/jczic/MicroWebSrv
 
-# edit the networks.py file to or use your own code here to connect to your wifi
+# edit the networks.py file or use your own code here to connect to your wifi
 from networks import networks
 from wifi import connect
 wifi = connect(networks)
