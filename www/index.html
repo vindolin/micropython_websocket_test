@@ -125,11 +125,22 @@ function disable_input() {
     $id('loading').style.display  = '';
 }
 
+// https://remysharp.com/2010/07/21/throttling-function-calls
+function debounce(fn, delay) {
+    var timer = null;
+    return function () {
+        var context = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            fn.apply(context, args);
+        }, delay);
+    };
+}
 
-$id('hue').addEventListener('input', (event)=> {
+$id('hue').addEventListener('input', debounce((event)=> {
     var hue = event.target.value;
     pixelsock.send(hue);
-}, false);
+}, 20));
 
 </script>
 
