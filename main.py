@@ -13,7 +13,8 @@ wifi = connect(networks)
 NEOPIXEL_PIN = 17
 PIXELCOUNT = 12
 
-SPEED = 0.04
+SPEED = 0.02
+SCALER = 40
 
 r = m.reset  # usefull for debugging r()
 np = NeoPixel(m.Pin(NEOPIXEL_PIN), PIXELCOUNT)
@@ -23,6 +24,7 @@ hue = 50
 
 
 def clear():
+    """ clear all pixels to black """
     for i in range(PIXELCOUNT):
         np[i] = (0, 0, 0)
         np.write()
@@ -32,16 +34,17 @@ clear()
 
 
 def set_luminosity(luminosity):
+    """ set the luminosity and precompute the gradient array """
     global lum_gradient, max_lum
     max_lum = luminosity
     step = max_lum / PIXELCOUNT
     lum_gradient = [int(step * i) for i in range(PIXELCOUNT + 1)]
 
 
-set_luminosity(max_lum)
+set_luminosity(max_lum)  # set initial luminosity
 
 
-def go():
+def run_main_loop():
     i = 0
 
     while True:
@@ -54,12 +57,13 @@ def go():
             np[(i + pixi) % PIXELCOUNT] = [int(c) for c in rgb]
         np.write()
 
-        st = (math.sin(i / 40) + 1) / 2
+        # speed the animation up and down with a sine wave
+        st = math.sin(i / SCALER) + 1
         sleep(SPEED * st)
         i += 1
 
 
-websockets = []
+websockets = []  # keeps track of all connections
 
 
 def _recvTextCallback(webSocket, msg):
@@ -85,8 +89,7 @@ def _acceptWebSocketCallback(webSocket, httpClient):
 
 mws = MicroWebSrv(webPath='/www')
 mws.MaxWebSocketRecvLen = 256
-mws.WebSocketThreaded = True
 mws.AcceptWebSocketCallback = _acceptWebSocketCallback
-mws.Start(threaded=True)
+mws.Start()
 
-go()
+run_main_loop()
