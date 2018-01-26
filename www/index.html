@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+body {
+    font-family: Impact, Charcoal, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(
+        to bottom,
+        #00AEBEFF 0%,
+        #00AEBEFF 95%,
+        #007580FF 95%,
+        #007580FF 100%
+    );
+    background-size: 100px 10px;
+    background-repeat: repeat-x;
+    background-color: #494949;
+}
+
+#hue_container {
+    margin: 0 auto;
+    margin-top: 50px;
+    background: linear-gradient(
+        to right,
+        hsl(0, 100%, 50%),
+        hsl(30, 100%, 50%),
+        hsl(60, 100%, 50%),
+        hsl(90, 100%, 50%),
+        hsl(120, 100%, 50%),
+        hsl(150, 100%, 50%),
+        hsl(180, 100%, 50%),
+        hsl(210, 100%, 50%),
+        hsl(240, 100%, 50%),
+        hsl(270, 100%, 50%),
+        hsl(300, 100%, 50%),
+        hsl(330, 100%, 50%),
+        hsl(360, 100%, 50%)
+    );
+    width: 800px;
+    border-radius: 5px;
+    border: 2px solid #00000066;
+    filter: grayscale(90%);
+}
+#hue {
+    margin: 0;
+    padding: 0;
+    height: 30px;
+    width:100%;
+}
+
+@keyframes pulse {
+    0% {opacity: 0;}
+    100% {opacity: 1.0;}
+}
+
+#loading {
+    padding-top:20px;
+    display: flex;
+    justify-content: center;
+    color:white;
+    font-size: 15pt;
+    text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.75);
+    animation: pulse 0.5s infinite;
+    animation-direction: alternate;
+}
+
+
+</style>
+
+<title>Neopixels</title>
+</head>
+
+<body>
+<div>
+
+<div id="hue_container">
+    <input id="hue" type="range" min="0" max="255" title="hue" value="127" autocomplete="off" disabled>
+</div>
+<div id="loading"><div>connecting to the websocket...</div></div>
+
+</div>
+<script>
+var $id = function(id) {
+    return document.getElementById(id);
+};
+
+var local_ip = '192.168.178.122';
+
+window.addEventListener('load', ()=>{
+    // use local_ip when index.html is loaded as file
+    var url = `ws://${location.host ? location.host : local_ip}`;
+
+    window.pixelsock = new WebSocket(url);
+    window.pixelsock.addEventListener('open', (event)=>{
+        // activate the form elements
+        $id('hue').disabled = false;
+        $id('hue_container').style.filter = 'grayscale(0%)';
+        $id('loading').style.display  = 'none';
+    });
+    window.pixelsock.addEventListener('message', (event)=>{
+        // websocket returns the current hue on connect
+        $id('hue').value = event.data;
+    });
+});
+
+$id('hue').addEventListener('input', (event)=> {
+    var hue = event.target.value;
+    pixelsock.send(hue);
+}, false);
+
+</script>
+
+</body>
+</html>
