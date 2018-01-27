@@ -4,6 +4,7 @@ from time import sleep
 import math
 from color import hsl2rgb
 from microWebSrv import MicroWebSrv  # download at https://github.com/jczic/MicroWebSrv
+import gc
 
 # edit the networks.py file or use your own code here to connect to your wifi
 from networks import networks
@@ -39,6 +40,7 @@ def set_luminosity(luminosity):
     max_lum = luminosity
     step = max_lum / PIXELCOUNT
     lum_gradient = [int(step * i) for i in range(PIXELCOUNT + 1)]
+    gc.collect()
 
 
 set_luminosity(max_lum)  # set initial luminosity
@@ -61,6 +63,7 @@ def run_main_loop():
         st = math.sin(i / SCALER) + 1
         sleep(SPEED * st)
         i += 1
+        gc.collect()
 
 
 websockets = []  # keeps track of all connections
@@ -72,19 +75,23 @@ def _recvTextCallback(webSocket, msg):
     for ws in websockets:
         if ws != webSocket:
             ws.SendText(msg)
+    gc.collect()
 
 
 def _closedCallback(webSocket):
     websockets.remove(webSocket)
+    gc.collect()
 
 
 def _acceptWebSocketCallback(webSocket, httpClient):
     websockets.append(webSocket)
+    gc.collect()
 
     print('new connection from ' + httpClient.GetIPAddr())
     webSocket.RecvTextCallback = _recvTextCallback
     webSocket.ClosedCallback = _closedCallback
     webSocket.SendText(str(hue))
+    print('free mem: ' + str(gc.mem_free()))
 
 
 mws = MicroWebSrv(webPath='/www')
