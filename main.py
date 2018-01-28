@@ -5,20 +5,22 @@ import math
 from color import hsl2rgb
 from microWebSrv import MicroWebSrv  # download at https://github.com/jczic/MicroWebSrv
 import gc
+import _thread
 
 # edit the networks.py file or use your own code here to connect to your wifi
 from networks import networks
 from wifi import connect
 wifi = connect(networks)
 
-NEOPIXEL_PIN = 17
-PIXELCOUNT = 12
+r = m.reset  # shortcut
+
+NEOPIXEL_PIN = 12
+PIXELCOUNT = 16
 
 SPEED = 0.02
 SCALER = 40
 
-r = m.reset  # usefull for debugging r()
-np = NeoPixel(m.Pin(NEOPIXEL_PIN), PIXELCOUNT)
+np = NeoPixel(m.Pin(NEOPIXEL_PIN), PIXELCOUNT, timing=True)
 
 max_lum = 20
 hue = 50
@@ -79,19 +81,25 @@ def _recvTextCallback(webSocket, msg):
 
 
 def _closedCallback(webSocket):
-    websockets.remove(webSocket)
+    with _thread.allocate_lock():
+        websockets.remove(webSocket)
     gc.collect()
+    print('closing stale websocket')
+    print('number of connections: {}'.format(len(websockets)))
+    print('free mem: {}'.format(gc.mem_free()))
 
 
 def _acceptWebSocketCallback(webSocket, httpClient):
-    websockets.append(webSocket)
+    with _thread.allocate_lock():
+        websockets.append(webSocket)
     gc.collect()
 
-    print('new connection from ' + httpClient.GetIPAddr())
+    print('new connection from {}'.format(httpClient.GetIPAddr()))
+    print('number of connections: {}'.format(len(websockets)))
     webSocket.RecvTextCallback = _recvTextCallback
     webSocket.ClosedCallback = _closedCallback
     webSocket.SendText(str(hue))
-    print('free mem: ' + str(gc.mem_free()))
+    print('free mem: {}'.format(gc.mem_free()))
 
 
 mws = MicroWebSrv(webPath='/www')
@@ -99,4 +107,4 @@ mws.MaxWebSocketRecvLen = 256
 mws.AcceptWebSocketCallback = _acceptWebSocketCallback
 mws.Start()
 
-run_main_loop()
+_thread.start_new_thread(run_main_loop, ())
