@@ -14,7 +14,7 @@ Also copy microWebSrv.py and microWebSocket.py from https://github.com/jczic/Mic
 
 ~~*Too bad that I get the error "MicroWebSocket : Out of memory on new WebSocket connection." when trying to connect more than two clients :(*~~
 
-*Edit: with lots of calls to gc.collect() at specific places, it's now possible to connect with 6-7 websockets.*
+*Edit: with some calls to gc.collect() at specific places, it's now possible to connect with 6-7 websockets.*
 
 *Connections take about 9 seconds though.*
 
