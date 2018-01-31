@@ -8,9 +8,9 @@ import gc
 import _thread
 
 # edit the networks.py file or use your own code here to connect to your wifi
-from networks import networks
-from wifi import connect
-wifi = connect(networks)
+from wifi import connect_wifi
+
+wifi = connect_wifi()
 
 r = m.reset  # shortcut
 
